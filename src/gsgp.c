@@ -138,7 +138,7 @@ void gsgp_set_features(struct gsgp_parameters *param, int n_features, double **i
     for (i = 0; i < n_features; ++i) {
         param->feature_interval[i]    = param->feature_interval[0] + 2 * i;
         param->feature_interval[i][0] = (intervals == NULL) ? -INFINITY : intervals[i][0];
-        param->feature_interval[i][1] = (intervals == NULL) ? -INFINITY : intervals[i][1];
+        param->feature_interval[i][1] = (intervals == NULL) ?  INFINITY : intervals[i][1];
     }
 }
 
