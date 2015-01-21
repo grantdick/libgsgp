@@ -12,7 +12,6 @@ OBJS:=$(subst $(SRCDIR)/,$(OBJDIR)/,$(patsubst %.c,%.o,$(wildcard $(SRCDIR)/*.c)
 
 CFLAGS:=-std=gnu99 -Wall -pedantic -march=native -O2 -g
 IFLAGS:=-I$(INCDIR)
-# LFLAGS:=-L$(LIBDIR) -lgsl -lgslcblas -lgsgp -lm
 LFLAGS:=-L$(LIBDIR) -lgsgp -lm
 
 INC:=$(SRCDIR)/gsgp.h
