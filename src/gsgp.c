@@ -1,5 +1,3 @@
-#define GNU_SOURCE
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -258,9 +256,10 @@ struct gsgp_individual *gsgp_crossover(struct gsgp_individual *mother, struct gs
         y = create_matrix(n, 1);
 
         for (i = 0; i < n; ++i) {
+            y[i][0] = Y[i];
+
             x[i][0] = gsgp_exec_individual(mother, ids[i], X[i], param);
             x[i][1] = gsgp_exec_individual(father, ids[i], X[i], param);
-            y[i][0] = Y[i];
 
             xt[0][i] = x[i][0];
             xt[1][i] = x[i][1];
