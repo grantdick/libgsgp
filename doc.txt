@@ -49,7 +49,7 @@ case-sensitive name=value pairs. The following configurations are
 available:
 
 pop_size
-	the number of individuals in the population (default: 200)
+    the number of individuals in the population (default: 200)
 
 generations
     the number of generations to run the system (default: 1000)
@@ -72,37 +72,37 @@ max_depth
 
 ms
     the mutation scale used in the mutation operator. Ignored if least
-	squares estimation, or regression tree models, as used (default:
-	0.1)
+    squares estimation, or regression tree models, as used (default:
+    0.1)
 
 balanced_mutation
     a Y or N indicating whether or not "balanced" mutation is used. In
-	balanced mutation, the mutant offspring from a current individual
-	becomes offspring = current + ms * (R1 - R2), where R1 and R2 are
-	randomly generated parse trees. When balanced_mutation is not used
-	(when the parameter is set to N), then offspring are generated
-	through: offspring = current + ms * R1 (default: N)
+    balanced mutation, the mutant offspring from a current individual
+    becomes offspring = current + ms * (R1 - R2), where R1 and R2 are
+    randomly generated parse trees. When balanced_mutation is not used
+    (when the parameter is set to N), then offspring are generated
+    through: offspring = current + ms * R1 (default: N)
 
 logistic_mutation
-    a Y of N indicating whether or not "bounded" mutation is used, as
-	in Castelli et al's framework. With logistic mutation, a randomly
-	generated tree used for mutation is rooted with a logistic
-	function to ensure that its behaviour is in [0,1]. When used in
-	conjunction with balanced_mutation, this ensures that a mutant
-	tree is bounded in behaviour to the interval [-1,1]. This is
-	argued to improve the performance on some problems (default: N)
+    a Y or N indicating whether or not "bounded" mutation is used, as
+    in Castelli et al's framework. With logistic mutation, a randomly
+    generated tree used for mutation is rooted with a logistic
+    function to ensure that its behaviour is in [0,1]. When used in
+    conjunction with balanced_mutation, this ensures that a mutant
+    tree is bounded in behaviour to the interval [-1,1]. This is
+    argued to improve the performance on some problems (default: N)
 
 search_method
     one of either POPULATION or HILLCLIMB, used to define the overall
-	search algorithm used by the program. HILLCLIMB defines an
-	search method similar to Moraglio's GSGP-based hillclimber, while
-	POPULATION defines a population-based search method more akin to
-	Koza's standard GP approach (default: POPULATION)
+    search algorithm used by the program. HILLCLIMB defines an
+    search method similar to Moraglio's GSGP-based hillclimber, while
+    POPULATION defines a population-based search method more akin to
+    Koza's standard GP approach (default: POPULATION)
 
 model_type
     the type of base learner representation used in the system. There
-	are several options:
-	    * STD_PARSE_TREE - a standard parse tree with +, *, - and
+    are several options:
+        * STD_PARSE_TREE - a standard parse tree with +, *, - and
           protected / operators
         * NODIV_PARSE_TREE - the same as above, but without the
           protected division operator
@@ -118,8 +118,8 @@ model_type
 
 crossover_coef
     determines the manner by which the crossover coefficients are
-	determined for each parent. There are several options:
-	    * FIXED - here the coefficients for each parent are set to 0.5
+    determined for each parent. There are several options:
+        * FIXED - here the coefficients for each parent are set to 0.5
 
         * RANDOM - here a p, (1-p) relationship is used (identical to
 	      Moraglio's definition of SGXE), so that the resulting
@@ -131,7 +131,7 @@ crossover_coef
 	      - father), so the coeffcient p can be determined using least
 	      squares estimates in exactly the same way that other papers
 	      have done so for the mutation scale
-		* MULTIPLE_LEAST_SQUARES - here, two parameters, p and q, are
+        * MULTIPLE_LEAST_SQUARES - here, two parameters, p and q, are
 	      estimated using least squares, with the resulting offspring
 	      being p*mother + q*father
     (default: LEAST_SQUARES)
@@ -139,7 +139,7 @@ crossover_coef
 mutation_coef
     determines the manner by which the mutation coefficient is
     determined for the mutant subtree. There are several options:
-	    * FIXED - here the coefficient is fixed to the value defined
+        * FIXED - here the coefficient is fixed to the value defined
           by the ms global parameter
         * RANDOM - the coefficient is sampled from a uniform
           distribution with the interval [0,ms]
