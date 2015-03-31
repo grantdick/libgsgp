@@ -1,5 +1,5 @@
-libgsgp Geometric Symmetric Genetic Programming for Symbolic Regression
-=======================================================================
+libgsgp: Geometric Symmetric Genetic Programming for Symbolic Regression
+========================================================================
 
 This project was created to support the experimental component of the paper:
 
