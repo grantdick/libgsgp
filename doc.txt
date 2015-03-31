@@ -1,0 +1,163 @@
+RUNNING THE DEMO APPLICATION:
+The project includes a demo application that implements a complete
+regression system for gsgp. The program, called gsgp, can be found in
+the dist directory once the project is compiled. The program is run
+with the following arguments:
+
+  gsgp <path to data file> <path to splits file> <split number> <configuration options>
+
+where:
+
+    <path to data file> is a path to the data set that contains both
+        the training and testing instances. The expected format is
+        that the data set has one instance per row, with all but the
+        last column representing the independent variables of the data
+        set, and the last column being the response variable. Each
+        column is whitespace separated
+
+    <path to splits file> is a path to the "splits" file for the given
+        data set. This is a file in which each row contains a
+        whitespace-separated list of indices (one-based) that
+        designate the instances from the data file that will be used
+        in the testing set.
+
+	<split number> is a integer indicating which row from the split
+        file will be used to determine training and testing splits
+
+	<configuration options> is a list of arguments in which each
+        argument takes on one of the following values:
+          * a path to a file containing name=value pairs of
+            configurations for the system, or
+          * "-p", which prompts the program to read the next argument
+            as a name/value configuration pair
+        the details of the configuration options appear below
+
+For example, assume that we have a data set defined in the file
+data.txt, a set of testing and training splits in the file splits.txt,
+and we wished to run the gsgp program on the third testing/training
+split for 100 generations. To do so, we issue the command (from the
+root of the project):
+
+  ./dist/gsgp data.txt splits.txt 3 -p generations=100
+
+
+
+CONFIGURATION:
+The gsgp demo application accepts a number of runtime configuration
+options to define the required behaviour. These are specified as
+case-sensitive name=value pairs. The following configurations are
+available:
+
+pop_size
+	the number of individuals in the population (default: 200)
+
+generations
+    the number of generations to run the system (default: 1000)
+
+p_cross
+    the crossover rate for the system (default: 0.3)
+
+p_mutation
+    the mutation rate for the system (default: 0.6)
+
+tourn_size
+    the size of tournament selection used in the population-based
+	search method (default: 4)
+
+min_depth
+    the minimum tree depth (default: 2)
+
+max_depth
+    the maximum tree depth used in initialisation (default: 6)
+
+ms
+    the mutation scale used in the mutation operator. Ignored if least
+	squares estimation, or regression tree models, as used (default:
+	0.1)
+
+balanced_mutation
+    a Y or N indicating whether or not "balanced" mutation is used. In
+	balanced mutation, the mutant offspring from a current individual
+	becomes offspring = current + ms * (R1 - R2), where R1 and R2 are
+	randomly generated parse trees. When balanced_mutation is not used
+	(when the parameter is set to N), then offspring are generated
+	through: offspring = current + ms * R1 (default: N)
+
+logistic_mutation
+    a Y of N indicating whether or not "bounded" mutation is used, as
+	in Castelli et al's framework. With logistic mutation, a randomly
+	generated tree used for mutation is rooted with a logistic
+	function to ensure that its behaviour is in [0,1]. When used in
+	conjunction with balanced_mutation, this ensures that a mutant
+	tree is bounded in behaviour to the interval [-1,1]. This is
+	argued to improve the performance on some problems (default: N)
+
+search_method
+    one of either POPULATION or HILLCLIMB, used to define the overall
+	search algorithm used by the program. HILLCLIMB defines an
+	search method similar to Moraglio's GSGP-based hillclimber, while
+	POPULATION defines a population-based search method more akin to
+	Koza's standard GP approach (default: POPULATION)
+
+model_type
+    the type of base learner representation used in the system. There
+	are several options:
+	    * STD_PARSE_TREE - a standard parse tree with +, *, - and
+          protected / operators
+        * NODIV_PARSE_TREE - the same as above, but without the
+          protected division operator
+        * INTERVAL_PARSE_TREE - a standard parse tree with all four
+          primitive functions, but an alternative tree building
+          algorithm is used that inspects the execution intervals of
+          subtrees before selecting a node's operator *
+        * REGRESSION_TREE - using regression trees to model the
+          problem space. Rather than using tree-building algorithms
+          like CART or C4.5, the algorithm used here is very naive and
+          uses random sampling of split points to partition the space
+    (default: REGRESSION_TREE)
+
+crossover_coef
+    determines the manner by which the crossover coefficients are
+	determined for each parent. There are several options:
+	    * FIXED - here the coefficients for each parent are set to 0.5
+
+        * RANDOM - here a p, (1-p) relationship is used (identical to
+	      Moraglio's definition of SGXE), so that the resulting
+	      offspring = p*mother + (1-p)*father
+        * LEAST_SQUARES - here, there is a realisation that crossover
+	      and mutation operators in GSGP are largely the same base
+	      operator, only working on different base individual. In this
+	      case, crossover is viewed as offspring = father + p*(mother
+	      - father), so the coeffcient p can be determined using least
+	      squares estimates in exactly the same way that other papers
+	      have done so for the mutation scale
+		* MULTIPLE_LEAST_SQUARES - here, two parameters, p and q, are
+	      estimated using least squares, with the resulting offspring
+	      being p*mother + q*father
+    (default: LEAST_SQUARES)
+
+mutation_coef
+    determines the manner by which the mutation coefficient is
+    determined for the mutant subtree. There are several options:
+	    * FIXED - here the coefficient is fixed to the value defined
+          by the ms global parameter
+        * RANDOM - the coefficient is sampled from a uniform
+          distribution with the interval [0,ms]
+        * LEAST_SQUARES - here, the coefficient is selected to
+          minimise the residuals between the model and the training data
+    (default: LEAST_SQUARES)
+
+scale_data
+    a Y or N indicating whether or not to standardise the training and
+    test data before supplying to the GSGP framework. If Y, then the
+    training data is standardised to a mean of zero and a standard
+    deviation of one, and then the test data is similarly standardised
+    using the mean and standard deviations identified from the
+    training data. (default: N)
+
+
+These configurations can be stored in a configuration file and passed
+to the program via the command line. The configuration file is a
+fairly standard ini format, and comments can be included in the file
+with the # character. Examples of configuration files can be found in
+the config directory.

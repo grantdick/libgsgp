@@ -37,12 +37,14 @@ struct gsgp_tree {
 static double min(double a, double b) { return (a < b) ? a : b; }
 static double max(double a, double b) { return (a > b) ? a : b; }
 
+static double logis(struct gsgp_tree *tree, double *data);
 static double add(struct gsgp_tree *tree, double *data);
 static double sub(struct gsgp_tree *tree, double *data);
 static double mul(struct gsgp_tree *tree, double *data);
 static double pdiv(struct gsgp_tree *tree, double *data);
 static double feature(struct gsgp_tree *tree, double *data);
 
+static void write_logis(struct gsgp_tree *tree, FILE *out);
 static void write_add(struct gsgp_tree *tree, FILE *out);
 static void write_sub(struct gsgp_tree *tree, FILE *out);
 static void write_mul(struct gsgp_tree *tree, FILE *out);
@@ -96,6 +98,10 @@ void gsgp_compute_interval(int op, double interval[2], double a, double b, doubl
             gsgp_compute_interval(2, interval, a, b, 1/d, 1/c);
         }
         break;
+    case 4:
+        interval[0] = 1 / (1.0 + exp(-a));
+        interval[1] = 1 / (1.0 + exp(-b));
+        break;
     }
 }
 
@@ -106,6 +112,7 @@ struct gsgp_tree *gsgp_build_tree(int min_depth, int max_depth,
                              struct gsgp_parameters *param)
 {
     int *mask;
+    double ab[2], cd[2];
     struct gsgp_tree *res;
 
     if (mutation && param->balanced_mutation) {
@@ -113,8 +120,35 @@ struct gsgp_tree *gsgp_build_tree(int min_depth, int max_depth,
         res->type = FUNCTION;
         res->exec = sub;
         res->print = write_sub;
-        res->details.function.arg0 = gsgp_build_tree(min_depth, max_depth, X, Y, n, false, interval, param);
-        res->details.function.arg1 = gsgp_build_tree(min_depth, max_depth, X, Y, n, false, interval, param);
+        if (param->logistic_mutation) {
+            res->details.function.arg0 = ALLOC(1, sizeof(struct gsgp_tree), false);
+            res->details.function.arg0->type = FUNCTION;
+            res->details.function.arg0->exec = logis;
+            res->details.function.arg0->print = write_logis;
+            res->details.function.arg0->details.function.arg0 = gsgp_build_tree(min_depth - 1, max_depth - 1, X, Y, n, false, interval, param);
+            res->details.function.arg0->details.function.arg1 = NULL;
+            gsgp_compute_interval(4, ab, interval[0], interval[1], NAN, NAN);
+
+            res->details.function.arg1 = ALLOC(1, sizeof(struct gsgp_tree), false);
+            res->details.function.arg1->type = FUNCTION;
+            res->details.function.arg1->exec = logis;
+            res->details.function.arg1->print = write_logis;
+            res->details.function.arg1->details.function.arg0 = gsgp_build_tree(min_depth - 1, max_depth - 1, X, Y, n, false, interval, param);
+            res->details.function.arg1->details.function.arg1 = NULL;
+            gsgp_compute_interval(4, cd, interval[0], interval[1], NAN, NAN);
+        } else {
+            res->details.function.arg0 = gsgp_build_tree(min_depth, max_depth, X, Y, n, false, ab, param);
+            res->details.function.arg1 = gsgp_build_tree(min_depth, max_depth, X, Y, n, false, cd, param);
+        }
+        gsgp_compute_interval(1, interval, ab[0], ab[1], cd[0], cd[1]);
+    } else if (mutation && param->logistic_mutation) {
+        res = ALLOC(1, sizeof(struct gsgp_tree), false);
+        res->type = FUNCTION;
+        res->exec = logis;
+        res->print = write_logis;
+        res->details.function.arg0 = gsgp_build_tree(min_depth - 1, max_depth - 1, X, Y, n, false, interval, param);
+        res->details.function.arg1 = NULL;
+        gsgp_compute_interval(4, interval, interval[0], interval[1], NAN, NAN);
     } else if (param->tree_model == REGRESSION_TREE) {
         mask = ALLOC(n, sizeof(int), false);
         memset(mask, 1, n * sizeof(int));
@@ -299,6 +333,11 @@ static struct gsgp_tree *build_regression_tree(int current_depth, int min_depth,
 
 
 
+static double logis(struct gsgp_tree *tree, double *data)
+{
+    return 1.0 / (1.0 + exp(-(tree->details.function.arg0->exec(tree->details.function.arg0, data))));
+}
+
 static double add(struct gsgp_tree *tree, double *data)
 {
     return tree->details.function.arg0->exec(tree->details.function.arg0, data) + tree->details.function.arg1->exec(tree->details.function.arg1, data);
@@ -326,6 +365,13 @@ static double pdiv(struct gsgp_tree *tree, double *data)
 static double feature(struct gsgp_tree *tree, double *data)
 {
     return data[tree->details.feature];
+}
+
+static void write_logis(struct gsgp_tree *tree, FILE *out)
+{
+    fprintf(out, "logis(");
+    tree->details.function.arg0->print(tree->details.function.arg0, out);
+    fprintf(out, ")");
 }
 
 static void write_add(struct gsgp_tree *tree, FILE *out)
