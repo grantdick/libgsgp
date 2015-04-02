@@ -30,7 +30,7 @@ binaries should appear in the dist directory.
 Documentation
 -------------
 
-Documentation for the project can be found in the file doc.txt
+Documentation for the project can be found in the file [doc.txt](doc.txt)
 
 License
 -------
